@@ -13,19 +13,27 @@ def get_config():
     config = configparser.ConfigParser()
     config.read(configFile)
     values = dict(config.items('Keys'))
-    access_key, consumer_secret, consumer_key, access_secret = [mydict.get(k) for k in ['access_key', 'consumer_secret', 'consumer_key', 'access_secret']]
+    access_key, consumer_secret, consumer_key, access_secret = [values.get(k) for k in ['access_key', 'consumer_secret', 'consumer_key', 'access_secret']]
     file = config['TweetText']['File']
     return access_key, consumer_secret, consumer_key, access_secret, file
 
-access_key, consumer_secret, consumer_key, access_secret = get_config()
+#get config data
+access_key, consumer_secret, consumer_key, access_secret, file = get_config()
 
-with open(argfile,'r') as f:
+#setup twitter
+auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+auth.set_access_token(access_key, access_secret)
+api = tweepy.API(auth)
+
+#read in messages
+with open(file,'r') as f:
     lns = f.readlines()
 
 for l in lns:
     if len(l) > 140:
         pass # replace with function to breakup and add ...
-    else
-        api.update_status(status=line)
-        time.sleep(900)  # Tweet every 15 minutes
+    else:
+        api.update_status(status=l)
+        print('tweeted:' + l)
+        time.sleep(180)  # Tweet every 3 minutes
 
